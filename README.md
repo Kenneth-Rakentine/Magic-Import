@@ -24,6 +24,7 @@ You may have to "unblock" the .xlam add-in file by right clicking the file in fi
 Users install the add-in to Excel Spreadshet (_saved as .xlsm format_) via File > Options > Add-ins > Go... > browse > select downloaded .xlam file
 
 In "Developer" tab > "Macro Security", enable all macros & trust access to the VBA object model
+[_To show the Developer tab in Excel, go to File > Options > Customize Ribbon and check the "Developer" box in the right-hand list of main tabs, then click OK_]
 
 <img src="./macro_security.png"> 
 

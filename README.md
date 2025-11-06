@@ -1,3 +1,4 @@
+<img src="./krtrnsprnt.png">
 **Installable Add-In**<br>
 As an Add-in (.xlam)<br>
 <br>

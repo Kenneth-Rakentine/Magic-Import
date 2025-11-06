@@ -64,6 +64,8 @@ journal<P_FROM_DATE_YEAR><P_FROM_DATE_MONTH><P_FROM_DATE_DAY>_
 
 (they both end with ".xml", so ensure the underscore_ is before the ".xml" because that will separate the 8 digit date text from the random generated numerical text that follows and make it more easily readable while still retaining the date in the correct format for the script to parse which row to insert the data. ".xml" is auto-added to the name, outside of the custom text naming field)
 
+<img src="./reports.png">
+
 ## Excel Revenue Spreadsheet Format
 
 <img src="./format.png">

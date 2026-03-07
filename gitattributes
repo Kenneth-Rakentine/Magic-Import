@@ -1,0 +1,19 @@
+# VBA files should always use Windows-style line endings (CRLF)
+# This prevents Git from converting them to Unix-style (LF) which breaks VBA
+
+*.cls text eol=crlf
+*.frm text eol=crlf
+*.bas text eol=crlf
+*.vba text eol=crlf
+
+# Excel files are binary and should not be modified by Git
+*.xlam binary
+*.xlsm binary
+*.xlsx binary
+*.xls binary
+
+# Image files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary

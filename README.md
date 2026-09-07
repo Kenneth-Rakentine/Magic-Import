@@ -71,4 +71,4 @@ journal<P_FROM_DATE_YEAR><P_FROM_DATE_MONTH><P_FROM_DATE_DAY>_
 
 <img src="./format.png">
 <br>
-* **Bulk Import:** Check "Bulk Import" box before clicking "OK" in month select pop-up dialogue box
+*Bulk Import: Check "Bulk Import" box before clicking "OK" in month select pop-up dialogue box

@@ -70,3 +70,5 @@ journal<P_FROM_DATE_YEAR><P_FROM_DATE_MONTH><P_FROM_DATE_DAY>_
 ## Excel Revenue Spreadsheet Format
 
 <img src="./format.png">
+<br>
+*Bulk Import: _Check "Bulk Import" box before clicking "OK" in month select pop-up dialogue box_

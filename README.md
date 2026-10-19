@@ -8,6 +8,9 @@ the report file name, then fills room revenue, rooms occupied and each payment t
 (MC and Visa are summed into one column). Bulk mode imports a whole month of report pairs at once and skips
 days that already have data.
 
+Getting the reports out of email first? See [`grabber/`](grabber/): a Google Apps Script that collects a
+month of these reports from a Gmail label into one zip, privately, and lists any missing days.
+
 The transaction codes and columns in `ParseAndWriteJournal` match one property's setup. Check them against
 your own transaction codes and recap layout before using it.
 

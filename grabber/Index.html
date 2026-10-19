@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f4f5f7;
+    margin: 0;
+    padding: 32px 16px;
+    color: #1f2328;
+  }
+  .card {
+    max-width: 520px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #d8dce1;
+    border-radius: 10px;
+    padding: 28px;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #656d76; font-size: 14px; margin: 0 0 24px; }
+
+  button {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 18px;
+    border-radius: 7px;
+    border: 1px solid #d8dce1;
+    background: #fff;
+    cursor: pointer;
+    margin: 0 8px 8px 0;
+  }
+  button:hover:not(:disabled) { background: #f0f1f3; }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primary { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  button.primary:hover:not(:disabled) { background: #1a5fd0; }
+
+  .row { margin-top: 18px; padding-top: 18px; border-top: 1px solid #eaecef; }
+  select {
+    font-size: 15px; padding: 11px 10px; border-radius: 7px;
+    border: 1px solid #d8dce1; background: #fff; margin-right: 8px;
+  }
+
+  #status { margin-top: 22px; font-size: 15px; }
+  .spin { color: #656d76; }
+  .good { color: #1a7f37; font-weight: 600; }
+  .bad  { color: #cf222e; font-weight: 600; }
+
+  .gaps {
+    margin-top: 14px; padding: 12px 14px;
+    background: #fff8c5; border: 1px solid #eac54f;
+    border-radius: 7px; font-size: 13px;
+  }
+  .gaps b { display: block; margin-bottom: 6px; }
+  .gaps div { padding: 1px 0; }
+
+  #dl { margin-top: 18px; }
+  #dl a {
+    display: inline-block; text-decoration: none;
+    background: #1a7f37; color: #fff; font-weight: 600; font-size: 15px;
+    padding: 13px 22px; border-radius: 7px;
+  }
+  .hint { margin-top: 10px; font-size: 13px; color: #656d76; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Opera XML Grabber</h1>
+  <p class="sub">Downloads the night audit manager &amp; journal reports as one zip file.</p>
+
+  <button class="primary" id="bThis" onclick="goThis()">This Month</button>
+  <button id="bLast" onclick="goLast()">Last Month</button>
+
+  <div class="row">
+    <select id="pick"></select>
+    <button id="bPick" onclick="goPick()">Get</button>
+  </div>
+
+  <div id="status"></div>
+  <div id="dl"></div>
+</div>
+
+<script>
+  var months = [];
+  var lastUrl = null;
+
+  google.script.run.withSuccessHandler(function (list) {
+    months = list;
+    var s = document.getElementById('pick');
+    list.forEach(function (o, i) {
+      var op = document.createElement('option');
+      op.value = i;
+      op.textContent = o.label;
+      s.appendChild(op);
+    });
+  }).webMonths();
+
+  function busy(on) {
+    ['bThis', 'bLast', 'bPick'].forEach(function (id) {
+      document.getElementById(id).disabled = on;
+    });
+  }
+
+  function say(cls, text) {
+    var st = document.getElementById('status');
+    st.innerHTML = '';
+    var span = document.createElement('span');
+    span.className = cls;
+    span.textContent = text;
+    st.appendChild(span);
+    return st;
+  }
+
+  function start() {
+    busy(true);
+    document.getElementById('dl').innerHTML = '';
+    say('spin', 'Searching your mail and building the zip. This takes up to a minute.');
+  }
+
+  function goThis() {
+    var d = new Date();
+    start();
+    fetchMonth(d.getFullYear(), d.getMonth() + 1);
+  }
+
+  function goLast() {
+    var d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - 1);
+    start();
+    fetchMonth(d.getFullYear(), d.getMonth() + 1);
+  }
+
+  function goPick() {
+    var o = months[document.getElementById('pick').value];
+    if (!o) return;
+    start();
+    fetchMonth(o.y, o.m);
+  }
+
+  function fetchMonth(y, m) {
+    google.script.run
+      .withSuccessHandler(done)
+      .withFailureHandler(function (e) {
+        busy(false);
+        say('bad', e.message);
+      })
+      .webGrab(y, m);
+  }
+
+  // The zip arrives inside the page itself and is saved by the browser.
+  // No file is stored in, or shared from, anyone's Google Drive.
+  function zipUrl(base64) {
+    var raw = atob(base64);
+    var bytes = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    if (lastUrl) URL.revokeObjectURL(lastUrl);
+    lastUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/zip' }));
+    return lastUrl;
+  }
+
+  function done(r) {
+    busy(false);
+    if (!r.ok) { say('bad', r.msg); return; }
+
+    var st = say('good', 'Ready: ' + r.msg);
+    if (r.gaps && r.gaps.length) {
+      var box = document.createElement('div');
+      box.className = 'gaps';
+      var head = document.createElement('b');
+      head.textContent = 'Missing reports — re-run these in Opera:';
+      box.appendChild(head);
+      r.gaps.forEach(function (g) {
+        var line = document.createElement('div');
+        line.textContent = g;
+        box.appendChild(line);
+      });
+      st.appendChild(box);
+    }
+
+    var dl = document.getElementById('dl');
+    var a = document.createElement('a');
+    a.href = zipUrl(r.data);
+    a.download = r.fname;
+    a.textContent = 'Download ' + r.fname;
+    dl.appendChild(a);
+    var hint = document.createElement('div');
+    hint.className = 'hint';
+    hint.textContent = 'Unzip into the folder the import macro reads.';
+    dl.appendChild(hint);
+  }
+</script>
+
+</body>
+</html>
